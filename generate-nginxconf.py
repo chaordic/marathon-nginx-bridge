@@ -54,10 +54,12 @@ def get_app_details(marathon_host, app):
         return map(lambda x: (x['host'], x['ports'][0]), tasks)
 
 def format_upstream(app, hosts):
-    res = 'upstream ' + app + ' {\n'
-    for h in hosts:
-        res += '\tserver ' + h[0] + ':' + str(h[1]) + ';\n'
-    res += '}\n'
+    res = ''
+    if hosts:
+        res += 'upstream ' + app + ' {\n'
+        for h in hosts:
+            res += '\tserver ' + h[0] + ':' + str(h[1]) + ';\n'
+        res += '}\n'
     return res
 
 if __name__ == '__main__':
