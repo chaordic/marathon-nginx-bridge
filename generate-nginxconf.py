@@ -30,28 +30,26 @@ server {
 
 def get_apps(marathon_host):
     response = requests.get(marathon_host + '/v2/apps').json()
-    if response['apps'] == []:
-        #print 'No apps found on Marathon'
-        sys.exit(2)
-    else:
+    if response['apps']:
         apps = []
         for i in response['apps']:
             app_id = i['id'].strip('/')
-            app_ports = i['ports']
-            if 80 in app_ports:
+            labels = i['labels']
+            if 'lb-port' in labels:
                 apps.append(app_id)
-            else:
-                pass #print 'Skipping app', app_id, 'no port 80 found'
         #print 'Found the following app LIST (port-80) on Marathon:', apps
         return apps
+    else:
+        print('No apps found on Marathon')
+        sys.exit(2)
 
 def get_app_details(marathon_host, app):
     response = requests.get(marathon_host + '/v2/apps/'+ app).json()
-    if (response['app']['tasks'] ==[]):
-        pass #print 'No task data on Marathon for App !', app
-    else:
+    if response['app']['tasks']:
         tasks = response['app']['tasks']
         return map(lambda x: (x['host'], x['ports'][0]), tasks)
+    else:
+        print('No task data on Marathon for app:', app)
 
 def format_upstream(app, hosts):
     res = ''
